@@ -149,6 +149,7 @@ Application is left-associative: `f x y z` = `((f x) y) z`.
 #check Bool → ℕ → ℤ
 #check (Bool → ℕ) → ℤ
 #check ℕ → (Bool → ℕ) → ℤ
+#check ℕ → ℤ → ℕ
 
 #check fun x : ℕ ↦ x
 #check fun f : ℕ → ℕ ↦ fun g : ℕ → ℕ ↦ fun h : ℕ → ℕ ↦
@@ -218,6 +219,6 @@ opaque β : Type
 opaque γ : Type
 
 def someFunOfType : (α → β → γ) → ((β → α) → β) → α → γ :=
-  fun f g a ↦ f a (g (fun b ↦ a))
+  fun f g a ↦ f a (g (fun b => a))
 
 end LoVe
