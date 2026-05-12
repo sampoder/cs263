@@ -318,6 +318,7 @@ theorem BigStep_while_Iff {B S s u} :
 theorem sillyLoop_from_1_BigStep :
     (sillyLoop, (fun _ ↦ 0)["x" ↦ 1]) ⇓ (fun _ ↦ 0) :=
   by
+
     rw [sillyLoop]
     simp [BigStep_while_true_Iff]
     -- -- without the inversion rules in simp

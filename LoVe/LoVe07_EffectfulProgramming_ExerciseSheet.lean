@@ -52,7 +52,9 @@ instance Option.LawfulMonadWithOrelse :
     emp          := Option.none
     orelse       := Option.orelse
     emp_orelse   :=
-      sorry
+      by
+        intro a ma
+        simp [Option.orelse]
     orelse_emp   :=
       by
         intro α ma
@@ -64,19 +66,33 @@ instance Option.LawfulMonadWithOrelse :
       -- in this proof, you might need to explode a lot of cases
       -- consider the tactic combinator `t1 <;> t2`, which runs
       -- t1 and then runs t2 on all goals that t2 made
-      sorry
+      by
+        intro a
+        intro ma
+        intro ma'
+        intro mc'
+        cases ma with
+        | none =>
+          cases ma'
+          . simp [Option.orelse]
+          . simp [Option.orelse]
+        | some =>
+          simp [Option.orelse]
+
     emp_bind     :=
       by
         intro α β f
         simp [Bind.bind]
         rfl
     bind_emp     :=
-      sorry
+      by
+        intro a b ma
+        simp
   }
 
 @[simp] theorem Option.some_bind {α β : Type} (a : α) (g : α → Option β) :
     (Option.some a >>= g) = g a :=
-  sorry
+  rfl
 
 /- 1.2. Now we are ready to define `FAction σ`: a monad with an internal state
 of type `σ` that can fail (unlike `Action σ`).

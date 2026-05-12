@@ -27,32 +27,51 @@ Think about the similarity to the type inhabitation problems of HW1! -/
 
 @[autogradedProof 1] theorem B (a b c : Prop) :
   (a → b) → (c → a) → c → b := by
-  sorry
+  intro ha
+  intro ca
+  intro c
+  apply ha (ca c)
 
 @[autogradedProof 1] theorem S (a b c : Prop) :
   (a → b → c) → (a → b) → a → c := by
-  sorry
+  intro abc
+  intro ab
+  intro a
+  apply (abc (a))
+  apply (ab a)
 
 @[autogradedProof 1] theorem more_nonsense (a b c : Prop) :
   (c → (a → b) → a) → c → b → a := by
-  sorry
+  intro caba
+  intro c
+  intro b
+  apply caba c
+  intro a
+  exact b
+
 
 @[autogradedProof 1]
 theorem evenMoreNonsense (a b c: Prop):
   (a → b) → (c → a) → c → b := by
-  sorry
+  intro ab
+  intro ca
+  intro c
+  apply (ab (ca c))
 
 
 @[autogradedProof 2]
 theorem weak_peirce (a b : Prop) :
     ((((a → b) → a) → a) → b) → b := by
-  sorry
+  intro abaab
+  apply abaab
+  intro aba
+  apply aba
+  intro ha
+  apply abaab
+  intro aba
+  exact ha
 
 end Q1_Simple_Proofs_Backwards
-
-
-
-
 
 section Q2_Logical_Connectives
 /- ## Question 2 (6 points): Logical Connectives
@@ -75,7 +94,20 @@ Hints:
 
 @[autogradedProof 1] theorem about_Impl (a b : Prop) :
   ¬ a ∨ b → a → b := by
-  sorry
+  rw [Not]
+  intro aob
+  apply Or.elim aob
+  { intro na
+    intro ha
+    apply False.elim
+    apply na ha
+  }
+  {
+    intro hb
+    intro ha
+    exact hb
+  }
+
 
 
 /- ### 2.2 (3 points).
@@ -124,7 +156,17 @@ Hints:
 
 @[autogradedProof 3, validAxioms #[Quot.sound, propext, funext]]
 theorem EM_of_DN: DoubleNegation → ExcludedMiddle := by
-  sorry
+  unfold DoubleNegation
+  unfold ExcludedMiddle
+  intro naa
+  intro ha
+  apply naa
+  intro haa
+  apply haa
+  apply Or.inr
+  intro h
+  apply haa
+  exact Or.inl h
 
 /- ### 2.3 (2 points).
 
@@ -148,6 +190,18 @@ axiom Peirce_of_EM : ExcludedMiddle → Peirce
 axiom DN_of_Peirce : Peirce → DoubleNegation
 
 -- enter your solution here
+
+theorem DN_of_EM: ExcludedMiddle → DoubleNegation := by
+  intro em
+  exact DN_of_Peirce (Peirce_of_EM em)
+
+theorem Peirce_of_DN: DoubleNegation → Peirce := by
+  intro dn
+  exact Peirce_of_EM (EM_of_DN dn)
+
+theorem EM_of_Peirce: Peirce → ExcludedMiddle := by
+  intro p
+  exact EM_of_DN (DN_of_Peirce p)
 
 end Q2_Logical_Connectives
 
@@ -187,11 +241,14 @@ My proofs are short, 2 tactics each.
 
 @[autogradedProof 1, validAxioms #[LoVe.BackwardProofs.symmtrans]]
 theorem my_symm (h : b = a) : a = b := by
-  sorry
+  apply symmtrans _ h
+  rfl
 
 @[autogradedProof 1, validAxioms #[LoVe.BackwardProofs.symmtrans]]
 theorem my_trans (h1 : a = b) (h2 : b = c) : a = c := by
-  sorry
+  apply symmtrans h1 _
+  apply symmtrans _ h2
+  rfl
 
 end
 end Q3_Equality
@@ -277,7 +334,15 @@ My proof is about 5ish tactics for each direction,
 @[autogradedProof 3]
 theorem exists_forall {α : Type} (p: α → Prop):
   ¬(∃x : α, p x) ↔ ∀y : α, ¬ p y := by
-  sorry
+  apply Iff.intro
+  . intro left
+    rw [Not] at left
+    intro y hy
+    apply left
+    apply Exists.intro y hy
+  . intro right y
+    apply Exists.elim y
+    exact right
 
 end Q4_Exists
 
@@ -333,8 +398,29 @@ definition, you can use `rw`.) -/
   validAxioms #[LoVe.BackwardProofs.fermats_last_theorem, Quot.sound, propext, funext, Classical.choice]]
 theorem pythagorean_triple_not_all_squares (a b c : ℕ) :
   IsPythagoreanTriple a b c → ¬(IsSquare a ∧ IsSquare b ∧ IsSquare c) := by
-  sorry
-
+  unfold IsPythagoreanTriple
+  unfold IsSquare
+  intro py
+  intro the_exists
+  have the_left := And.left the_exists
+  have the_middle := And.left (And.right the_exists)
+  have the_right := And.right (And.right the_exists)
+  apply Exists.elim the_left
+  intro n_1
+  intro left_true
+  apply Exists.elim the_middle
+  intro n_2
+  intro middle_true
+  apply Exists.elim the_right
+  intro n_3
+  intro right_true
+  rw [left_true, middle_true, right_true] at py
+  apply fermats_last_theorem n_1 n_2 4
+  decide
+  rw [← pow_mul] at py
+  rw [← pow_mul] at py
+  rw [← pow_mul] at py
+  apply Exists.intro n_3 (py)
 
 end Q5_Pythagorean_Triples
 
@@ -361,7 +447,10 @@ def sum : List ℕ → ℕ
 @[autogradedProof 2]
 theorem sum_snoc (ms : List ℕ) (n : ℕ) :
   sum (snoc ms n) = n + sum ms := by
-  sorry
+  induction ms with
+    | nil           => rfl
+    | cons n ms' ih => rw [snoc, sum, ih]
+                       ac_rfl
 
 -- you may want to check out the definition of `List.append` in the Lean library
 -- to figure out what to induct on
@@ -370,13 +459,24 @@ theorem sum_snoc (ms : List ℕ) (n : ℕ) :
 @[autogradedProof 2]
 theorem sum_append (ms ns : List ℕ) :
   sum (ms ++ ns) = sum ms + sum ns := by
-  sorry
+  induction ms with
+    | nil           => rw [sum]
+                       ac_rfl
+    | cons n ms ih =>  rw [List.cons_append]
+                       rw [sum]
+                       rw [ih]
+                       rw [sum]
+                       ac_rfl
+
 
 @[autogradedProof 2]
 -- hint: use a theorem that you proved earlier in this homework
 theorem sum_reverse (ns : List ℕ) :
   sum (reverse ns) = sum ns := by
-  sorry
+  induction ns with
+    | nil           => ac_rfl
+    | cons n ms ih => rw [reverse, sum_snoc, ih]
+                      ac_rfl
 
 end Q6_List_Functions
 

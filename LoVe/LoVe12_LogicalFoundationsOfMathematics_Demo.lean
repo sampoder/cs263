@@ -361,7 +361,7 @@ def vector123 : Vector ℤ 3 :=
   Subtype.mk [1, 2, 3] (by rfl)
 
 def Vector.neg {n : ℕ} (v : Vector ℤ n) : Vector ℤ n :=
-  Subtype.mk (List.map Int.neg (Subtype.val v))
+  Subtype.mk (List.map Int.neg v.val)
     (by
        rw [List.length_map]
        exact Subtype.property v)

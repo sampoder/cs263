@@ -60,7 +60,7 @@ theorem Even_4 : Even 4 :=
   -- show Even 4 from
   --   Even.add_two _ Even_2
   -- alternatively
-  Even.add_two _ (Even.add_two _ Even.zero)
+  Even.add_two _ (Even.add_two 0 Even.zero)
 
 
 /- Why cannot we simply define `Even` recursively? Indeed, why not? -/

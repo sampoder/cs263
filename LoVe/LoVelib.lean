@@ -10,6 +10,7 @@ import Mathlib.Data.Finset.Basic
 import Mathlib.Data.Tree.Basic
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Ring
+import LoVe.Inductosolve
 
 
 /- # LoVelib: Logical Verification Library -/

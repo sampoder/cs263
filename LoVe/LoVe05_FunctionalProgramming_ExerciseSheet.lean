@@ -33,13 +33,19 @@ hypothesis is not strong enough. Start by proving the following generalization
 
 theorem reverseAccu_Eq_reverse_append {α : Type} :
     ∀as xs : List α, reverseAccu as xs = reverse xs ++ as :=
-  sorry
+  by
+    intros
+    induction xs generalizing as
+    . rfl
+    . simp [reverse, reverseAccu, tail_ih]
+
 
 /- 1.2. Derive the desired equation. -/
 
 theorem reverseAccu_eq_reverse {α : Type} (xs : List α) :
     reverseAccu [] xs = reverse xs :=
-  sorry
+  by
+    simp [reverseAccu_Eq_reverse_append]
 
 /- 1.3. Prove the following property.
 
@@ -52,7 +58,7 @@ Hint: A one-line inductionless proof is possible.
 
 theorem reverseAccu_reverseAccu {α : Type} (xs : List α) :
     reverseAccu [] (reverseAccu [] xs) = xs :=
-  by sorry
+  by simp only [reverseAccu_eq_reverse, reverse_reverse]
 
 /- ## Question 2: Drop and Take
 

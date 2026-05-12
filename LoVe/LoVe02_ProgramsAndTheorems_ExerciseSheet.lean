@@ -22,8 +22,9 @@ its argument, or 0 if the argument is 0. For example:
     `pred 7 = 6`
     `pred 0 = 0` -/
 
-def pred : ℕ → ℕ :=
-  sorry
+def pred : ℕ → ℕ
+  | 0 => 0
+  | a  => a - 1
 
 /- 1.2. Check that your function works as expected. -/
 
@@ -58,10 +59,15 @@ function on `AExp`) are unrelated. -/
 def someEnv : String → ℤ
   | "x" => 3
   | "y" => 17
+  | "z" => 0
   | _   => 201
 
 #eval eval someEnv (AExp.var "x")   -- expected: 3
 -- invoke `#eval` here
+
+#eval eval someEnv (AExp.div (AExp.num 5) (AExp.var "z"))
+
+#eval eval someEnv (AExp.div (AExp.num 5) (AExp.num 0))
 
 /- 2.2. The following function simplifies arithmetic expressions involving
 addition. It simplifies `0 + e` and `e + 0` to `e`. Complete the definition so
@@ -73,6 +79,13 @@ def simplify : AExp → AExp
   | AExp.add e₁ (AExp.num 0) => simplify e₁
   -- insert the missing cases here
   -- catch-all cases below
+  | AExp.sub e₁ (AExp.num 0) => simplify e₁
+  | AExp.mul _ (AExp.num 0) => AExp.num 0
+  | AExp.mul (AExp.num 0) _ => AExp.num 0
+  | AExp.mul (AExp.num 1) e₁ => (simplify e₁)
+  | AExp.mul e₁ (AExp.num 1) => (simplify e₁)
+  | AExp.div e₁ (AExp.num 1) => (simplify e₁)
+  | AExp.div (AExp.num 0) _ => AExp.num 0
   | AExp.num i               => AExp.num i
   | AExp.var x               => AExp.var x
   | AExp.add e₁ e₂           => AExp.add (simplify e₁) (simplify e₂)
@@ -90,7 +103,7 @@ the property that the value of `e` after simplification is the same as the
 value of `e` before. -/
 
 theorem simplify_correct (env : String → ℤ) (e : AExp) :
-  True :=   -- replace `True` by your theorem statement
+  eval env e = eval env (simplify e) :=   -- replace `True` by your theorem statement
   sorry   -- leave `sorry` alone
 
 

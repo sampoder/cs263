@@ -41,7 +41,8 @@ conjunctions are gone. Define your tactic as a macro. -/
 #check repeat'
 
 -- enter your definition here
-macro "intro_and" : tactic => `(tactic| (fail "unimplemented!!"))
+macro "intro_and" : tactic => `(tactic|
+      (repeat' apply And.intro))
 
 theorem abcd_bd (a b c d : Prop) (h : a ∧ (b ∧ c) ∧ d) :
     b ∧ d :=
@@ -64,6 +65,7 @@ theorem abcd_bacb (a b c d : Prop) (h : a ∧ (b ∧ c) ∧ d) :
     b ∧ (a ∧ (c ∧ b)) :=
   by
     intro_and
+
     /- The proof state should be as follows:
 
         case left
@@ -123,7 +125,10 @@ partial def casesAnd : TacticM Unit :=
     for decl in ctx do
       if decl.isImplementationDetail then
         continue
-      failure -- start your implementation here!
+      if (Expr.isAppOfArity (decl.type) ``And 2) then
+        cases decl.fvarId
+        casesAnd
+        return
 
 -- This tells the elaborator how to parse the tactic and what metaprogram to run
 elab "cases_and" : tactic => casesAnd
@@ -148,8 +153,8 @@ theorem abcd_bd_again (a b c d : Prop) :
 `intro_and`, before it tries to prove all the subgoals that can be discharged
 directly by `assumption`. -/
 
-macro "destro_and" : tactic =>
-  sorry
+macro "destro_and" : tactic => `(tactic|
+      (cases_and; intro_and; repeat' assumption))
 
 theorem abcd_bd_over_again (a b c d : Prop) (h : a ∧ (b ∧ c) ∧ d) :
     b ∧ d :=

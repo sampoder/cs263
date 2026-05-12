@@ -30,7 +30,11 @@ Syntax of tactical proofs:
 
 The keyword `by` indicates to Lean the proof is tactical. -/
 
-theorem fst_of_two_props :
+theorem fst_of_two_props
+    (a b : Prop): a → b → a :=
+    fun ha hb ↦ ha
+
+theorem fst_of_two_props_x:
     ∀a b : Prop, a → b → a :=
   by
     intro a b
@@ -163,12 +167,12 @@ Introduction rules: -/
 theorem And_swap (a b : Prop) :
     a ∧ b → b ∧ a :=
   by
-    intro hab
-    apply And.intro
-    apply And.right
-    exact hab
-    apply And.left
-    exact hab
+    refine fun hab ↦ ?_
+    refine And.intro ?_ ?_
+    exact hab.right
+    exact hab.left
+
+
 
 /- The above proof step by step:
 
@@ -207,10 +211,10 @@ theorem Or_swap (a b : Prop) :
   by
     intro hab
     apply Or.elim hab
-    { intro ha
-      exact Or.inr ha }
-    { intro hb
-      exact Or.inl hb }
+    . intro ha
+      exact Or.inr ha
+    . intro hb
+      exact Or.inl hb
 
 theorem modus_ponens (a b : Prop) :
     (a → b) → a → b :=
@@ -222,9 +226,10 @@ theorem modus_ponens (a b : Prop) :
 theorem Not_Not_intro (a : Prop) :
     a → ¬¬ a :=
   by
-    intro ha hna
-    apply hna
-    exact ha
+    intro ha
+    unfold Not
+    intro na
+    exact na ha
 
 theorem Exists_double_iden :
     ∃n : ℕ, double n = n :=
@@ -301,30 +306,30 @@ named subgoal per constructor. -/
 theorem add_zero (n : ℕ) :
     add 0 n = n :=
   by
-    induction n with
-    | zero       => rfl
-    | succ n' ih => simp [add, ih]
+    inductosolve[add]
+
 
 theorem add_succ (m n : ℕ) :
     add (Nat.succ m) n = Nat.succ (add m n) :=
   by
-    induction n with
-    | zero       => rfl
-    | succ n' ih => simp [add, ih]
+    induction n
+    . simp[add]
+    . simp[add, a]
+
+theorem add_succ_alt (m n : ℕ) :
+    add (Nat.succ m) n = Nat.succ (add m n) :=
+  by
+    inductosolve[add, a]
 
 theorem add_comm (m n : ℕ) :
     add m n = add n m :=
   by
-    induction n with
-    | zero       => simp [add, add_zero]
-    | succ n' ih => simp [add, add_succ, ih]
+    inductosolve[add, add_zero, add_succ]
 
 theorem add_assoc (l m n : ℕ) :
     add (add l m) n = add l (add m n) :=
   by
-    induction n with
-    | zero       => rfl
-    | succ n' ih => simp [add, ih]
+    inductosolve[add, add_zero, add_succ]
 
 /- `ac_rfl` is extensible. We can register `add` as a commutative and
 associative operator using the type class instance mechanism (explained in
@@ -344,6 +349,11 @@ theorem mul_add (l m n : ℕ) :
     | succ n' ih =>
       simp [add, mul, ih]
       ac_rfl
+
+theorem mul_add_alt (l m n : ℕ) :
+    mul l (add m n) = add (mul l m) (mul l n) :=
+  by
+    inductosolve[add, mul]
 
 
 /- ## Cleanup Tactics

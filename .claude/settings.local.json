@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(rsync -a --exclude=gallery --exclude=.git --exclude=extras /tmp/phonokit/ /Users/sam/Documents/GitHub/sp-cs263/phonokit-local/)",
+      "WebFetch(domain:www.ktvu.com)",
+      "Bash(grep -n \"induction\\\\|sorry\\\\|theorem\\\\|by$\")",
+      "Bash(git -C /Users/sam/Documents/GitHub/sp-cs263 ls-remote upstream)",
+      "Bash(lake env *)",
+      "Bash(lake env lean *)",
+      "Bash(lake build *)"
+    ]
+  }
+}

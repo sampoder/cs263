@@ -70,7 +70,7 @@ context. -/
 
 theorem prop_comp (a b c : Prop) (hab : a → b) (hbc : b → c) :
     a → c :=
-  assume ha : a
+  fun ha : a ↦
   have hb : b :=
     hab ha
   have hc : c :=
