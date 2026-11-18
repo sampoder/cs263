@@ -125,19 +125,23 @@ theorem mirror_IsFull {α : Type} :
 
 /- 3.2. Define a `map` function on binary trees, similar to `List.map`. -/
 
-def Tree.map {α β : Type} (f : α → β) : Tree α → Tree β :=
-  sorry
+def Tree.map {α β : Type} (f : α → β) : Tree α → Tree β
+  | Tree.nil        => Tree.nil
+  | Tree.node a l r => Tree.node (f a) (Tree.map f l) (Tree.map f r)
 
 /- 3.3. Prove the following theorem by case distinction. -/
 
 theorem Tree.map_eq_empty_iff {α β : Type} (f : α → β) :
-    ∀t : Tree α, Tree.map f t = Tree.nil ↔ t = Tree.nil :=
-  sorry
+    ∀t : Tree α, Tree.map f t = Tree.nil ↔ t = Tree.nil := by
+  intro t
+  cases t with
+  | nil        => simp [Tree.map]
+  | node a l r => simp [Tree.map]
 
 /- 3.4 (**optional**). Prove the following theorem by rule induction. -/
 
 theorem map_mirror {α β : Type} (f : α → β) :
     ∀t : Tree α, IsFull t → IsFull (Tree.map f t) :=
-  sorry
+  by intro t h; inductosolve [Tree.map, IsFull.nil, IsFull.node, Tree.map_eq_empty_iff]
 
 end LoVe

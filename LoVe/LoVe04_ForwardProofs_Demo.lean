@@ -473,9 +473,7 @@ theorem reverse_append {α : Type} :
 theorem reverse_append_tactical {α : Type} (xs ys : List α) :
     reverse (xs ++ ys) = reverse ys ++ reverse xs :=
   by
-    induction xs with
-    | nil           => simp [reverse]
-    | cons x xs' ih => simp [reverse, ih]
+    inductosolve [reverse]
 
 theorem reverse_reverse {α : Type} :
     ∀xs : List α, reverse (reverse xs) = xs

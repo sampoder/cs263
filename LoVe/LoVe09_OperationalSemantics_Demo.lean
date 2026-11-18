@@ -201,16 +201,13 @@ infix:110 " ⇓ " => BigStep
 
 /- We can define inversion rules about the big-step semantics: -/
 
+open BigStep in
+example {s t} : (Stmt.skip, s) ⇓ t ↔ t = s := by
+  inductosolve [BigStep.skip]
+
 @[simp] theorem BigStep_skip_Iff {s t} :
-    (Stmt.skip, s) ⇓ t ↔ t = s :=
-  by
-    apply Iff.intro
-    { intro h
-      cases h with
-      | skip => rfl }
-    { intro h
-      rw [h]
-      apply BigStep.skip }
+    (Stmt.skip, s) ⇓ t ↔ t = s := by
+  inductosolve [BigStep.skip]
 
 @[simp] theorem BigStep_assign_Iff {x a s t} :
     (Stmt.assign x a, s) ⇓ t ↔ t = s[x ↦ a s] :=
@@ -704,14 +701,8 @@ theorem BigStep_of_SmallStep_of_BigStep {Ss₀ Ss₁ s₂}
       (h₁ : Ss₀ ⇒ Ss₁) :
     Ss₁ ⇓ s₂ → Ss₀ ⇓ s₂ :=
   by
-    induction h₁ generalizing s₂ with
-    | assign x a s               => simp
-    | seq_step S S' T s s' hS ih => aesop
-    | seq_skip T s               => simp
-    | seq_skip2 T s              => simp
-    | if_true B S T s hB         => aesop
-    | if_false B S T s hB        => aesop
-    | whileDo B S s              => aesop (add simp [BigStep_while_true_Iff])
+    inductosolve [BigStep_while_true_Iff]
+
 
 theorem BigStep_of_RTC_SmallStep {Ss t} :
     Ss ⇒* (Stmt.skip, t) → Ss ⇓ t :=

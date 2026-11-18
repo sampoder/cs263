@@ -68,9 +68,7 @@ on. -/
 theorem Nat.succ_neq_self (n : ℕ) :
     Nat.succ n ≠ n :=
   by
-    induction n with
-    | zero       => simp
-    | succ n' ih => simp [ih]
+    inductosolve
 
 
 /- ## Structural Recursion
@@ -411,16 +409,12 @@ def mapArgs {α β : Type} : (α → β) → List α → List β
 theorem map_eq_list_map {α β: Type} (f: α → β) (xs: List α):
     map f xs = List.map f xs :=
   by
-    induction xs with
-    | nil           => rfl
-    | cons x xs' ih => simp [map, List.map, ih]
+    inductosolve [map, List.map]
 
 theorem map_ident {α : Type} (xs : List α) :
     map (fun x ↦ x) xs = xs :=
   by
-    induction xs with
-    | nil           => rfl
-    | cons x xs' ih => simp [map, ih]
+    inductosolve [map]
 
 theorem map_comp {α β γ : Type} (f : α → β) (g : β → γ)
       (xs : List α) :
@@ -428,17 +422,13 @@ theorem map_comp {α β γ : Type} (f : α → β) (g : β → γ)
     -- map g (map f xs) = map (fun x ↦ g (f x)) xs :=
     map g (map f xs) = map (g ∘ f) xs :=
   by
-    induction xs with
-    | nil           => rfl
-    | cons x xs' ih => simp [map, ih]
+    inductosolve [map]
 
 theorem map_append {α β : Type} (f : α → β)
       (xs ys : List α) :
     map f (xs ++ ys) = map f xs ++ map f ys :=
   by
-    induction xs with
-    | nil           => rfl
-    | cons x xs' ih => simp [map, ih]
+    inductosolve [map]
 
 -- Notice how similar all those proofs are! That is typical.
 
@@ -514,12 +504,7 @@ theorem length_zip {α β : Type} (xs : List α) (ys : List β) :
   by
     -- uh oh, we want to do induction on xs, but ys is already fixed!
     -- induction xs with -- this fails, try it
-    induction xs generalizing ys with
-    | nil           => simp [zip, length, min]
-    | cons x xs' ih =>
-      cases ys with
-      | nil        => rfl
-      | cons y ys' => simp [zip, length, ih ys', min_add_add]
+    inductosolve [zip, length, min_add_add]
 
 theorem map_zip {α α' β β' : Type} (f : α → α')
       (g : β → β') :
@@ -566,10 +551,7 @@ def mirror {α : Type} : Tree α → Tree α
 theorem mirror_mirror {α : Type} (t : Tree α) :
     mirror (mirror t) = t :=
   by
-    induction t with
-    | nil                  => rfl
-    -- we get 2 ih's!
-    | node a l r ih_l ih_r => simp [mirror, ih_l, ih_r]
+    inductosolve [mirror]
 
 -- same proof, done using calc
 -- we will manually recursively call the theorem, instead of using the induction hypothesis
@@ -645,8 +627,6 @@ theorem length_listOfVec {α : Type} (n : ℕ) (v : Vec α n):
   -- | m+1, Vec.cons a v2 => by simp [listOfVec, length_listOfVec _ v2]
 
   by
-    induction v
-    . rfl
-    . simp [listOfVec, v_ih]
+    inductosolve [listOfVec]
 
 end LoVe

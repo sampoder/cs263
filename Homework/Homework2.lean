@@ -447,10 +447,7 @@ def sum : List ℕ → ℕ
 @[autogradedProof 2]
 theorem sum_snoc (ms : List ℕ) (n : ℕ) :
   sum (snoc ms n) = n + sum ms := by
-  induction ms with
-    | nil           => rfl
-    | cons n ms' ih => rw [snoc, sum, ih]
-                       ac_rfl
+  inductosolve? [snoc, sum]
 
 -- you may want to check out the definition of `List.append` in the Lean library
 -- to figure out what to induct on
@@ -459,24 +456,14 @@ theorem sum_snoc (ms : List ℕ) (n : ℕ) :
 @[autogradedProof 2]
 theorem sum_append (ms ns : List ℕ) :
   sum (ms ++ ns) = sum ms + sum ns := by
-  induction ms with
-    | nil           => rw [sum]
-                       ac_rfl
-    | cons n ms ih =>  rw [List.cons_append]
-                       rw [sum]
-                       rw [ih]
-                       rw [sum]
-                       ac_rfl
+  inductosolve? [List.cons_append, sum]
 
 
 @[autogradedProof 2]
 -- hint: use a theorem that you proved earlier in this homework
 theorem sum_reverse (ns : List ℕ) :
   sum (reverse ns) = sum ns := by
-  induction ns with
-    | nil           => ac_rfl
-    | cons n ms ih => rw [reverse, sum_snoc, ih]
-                      ac_rfl
+  inductosolve? [reverse, sum_snoc]
 
 end Q6_List_Functions
 

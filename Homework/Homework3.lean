@@ -53,9 +53,7 @@ Prove the following theorem by rule induction: -/
 theorem Odd_Even {n : ℕ} (hodd : Odd n) :
   Even (n + 1) :=
   by
-    induction hodd with
-    | one => exact (Even.add_two _ Even.zero)
-    | add_two k a ih => exact (Even.add_two _ ih)
+    inductosolve?
 
 
 /- ### 1.4 (1 point).
@@ -69,14 +67,8 @@ theorem Even_Not_Odd {n : ℕ} (heven : Even n) :
   ¬ Odd n :=
   by
     induction heven with
-    | zero =>
-      intro h
-      contradiction
-    | add_two n e a_ih =>
-      intro h
-      cases h
-      contradiction
-
+  | zero => intro h <;> cases h <;> rfl
+  | add_two => intro h <;> cases h <;> simp_all
 
 /- ### 1.5 (3 point).
 
@@ -89,15 +81,8 @@ Use the first two theorems in the last one.
 theorem Even_add :
   ∀ (m n : ℕ), Even m → Even n → Even (m + n) :=
   by
-    intro m n e_m e_n
-    induction e_m with
-    | zero =>
-      simp
-      exact e_n
-    | add_two k e_k e_k_n =>
-      have e_k_n_2 := (Even.add_two _ e_k_n)
-      rw [Nat.add_right_comm] at e_k_n_2
-      exact e_k_n_2
+    intros m n e_m e_n
+    inductosolve? [Nat.add_right_comm]
 
 -- You might need `Nat.mul_comm` and `Nat.mul_add`
 @[autogradedProof 1]
@@ -106,12 +91,8 @@ theorem Even_mul_two :
   by
     intro m
     induction m with
-    | zero => exact Even.zero
-    | succ n h =>
-      rw [Nat.mul_comm, Nat.mul_add]
-      rw [Nat.mul_comm]
-      exact Even.add_two (n * 2) h
-
+    | zero => apply LoVe.Even.zero <;> assumption
+    | succ => simp_all [Nat.succ_mul, Nat.mul_succ]; apply LoVe.Even.add_two <;> assumption
 
 -- You might need `Nat.mul_comm` and `Nat.mul_add`
 @[autogradedProof 1]
@@ -119,16 +100,7 @@ theorem Even_mul_even:
   ∀ (m n : ℕ), Even m → Even (m * n) :=
   by
     intro m n h
-    induction h with
-    | zero =>
-      simp
-      exact Even.zero
-    | add_two k e_k e_k_n =>
-      rw [Nat.mul_comm, Nat.mul_add]
-      have n_2 := n * 2
-      have e_n_2 := Even_mul_two n
-      rw [Nat.mul_comm] at e_k_n
-      exact Even_add (n * k) (n * 2) e_k_n e_n_2
+    inductosolve? [Nat.add_mul, Nat.mul_comm, Even_add, Even_mul_two]
 
 end Q1_Even_Odd
 
@@ -161,14 +133,7 @@ theorem sumUpToOfFun_eq :
     ∀m : ℕ, 2 * sumUpToOfFun id m = m * (m + 1) :=
   by
     intro n
-    induction n with
-    | zero =>
-      simp
-      rfl
-    | succ n ih =>
-      simp [sumUpToOfFun]
-      rw [Nat.mul_add, ih]
-      linarith
+    inductosolve? [sumUpToOfFun, Nat.mul_add]
 
 /- (2 points). Prove the following property of `sumUpToOfFun`. -/
 
@@ -178,12 +143,7 @@ theorem sumUpToOfFun_mul (f g : ℕ → ℕ) :
       sumUpToOfFun f n + sumUpToOfFun g n :=
   by
     intro n
-    induction n with
-    | zero =>
-      simp [sumUpToOfFun]
-    | succ n ih =>
-      simp [sumUpToOfFun]
-      linarith
+    inductosolve? [sumUpToOfFun]
 
 
 end Q2_Gauss
@@ -216,21 +176,14 @@ inductive Subseq {α : Type} : List α → List α → Prop where
 theorem Subseq_empty {α : Type} (xs : List α) :
   Subseq [] xs :=
   by
-    induction xs with
-    | nil =>
-      simp [Subseq.rfl]
-    | cons h t t_ih =>
-      exact Subseq.drop h [] t t_ih
+    inductosolve? [Subseq.rfl]
 
 @[autogradedProof 1]
 theorem Subseq_empty_iff_empty {α : Type} (xs : List α) :
   Subseq xs [] ↔ xs = [] :=
   by
     apply Iff.intro
-    . induction xs
-      . simp
-      . intro head
-        contradiction
+    . inductosolve?
     . intro first
       rw [first]
       exact Subseq.rfl []
@@ -240,22 +193,14 @@ theorem Subseq_concat_same {α : Type} (xs a b : List α):
   Subseq a b → Subseq (xs ++ a) (xs ++ b) :=
   by
     intro assumption
-    induction xs with
-    | nil => exact assumption
-    | cons head tail tail_ih =>
-      exact Subseq.keep _ _ _ tail_ih
+    inductosolve?
 
 @[autogradedProof 2]
 theorem Subseq_concat {α : Type} (a' a b' b : List α):
   Subseq a' a → Subseq b' b → Subseq (a' ++ b') (a ++ b) :=
   by
     intro a_a b_b
-    induction a_a with
-    | rfl xs => exact Subseq_concat_same _ _ _ b_b
-    | drop y xs ys a a_ih =>
-      exact Subseq.drop _ _ _ a_ih
-    | keep x xs ys a a_ih =>
-      exact Subseq.keep _ _ _ a_ih
+    inductosolve? [Subseq_concat_same, Subseq.drop, Subseq.keep]
 
 end Q3_Subseq
 
@@ -331,11 +276,7 @@ theorem bind_append {α β : Type} (f : α → List β) :
     ∀as as' : List α, bind (as ++ as') f = bind as f ++ bind as' f :=
   by
     intro l_a l_a'
-    induction l_a with
-      | nil =>
-        simp [bind]
-      | cons head tail tail_ih =>
-        simp [bind, tail_ih]
+    inductosolve [bind]
 
 
 /- (3 points). Prove the three laws for `List`. -/
@@ -352,11 +293,7 @@ theorem bind_pure {α : Type} :
     ∀as : List α, bind as pure = as :=
   by
     intro as
-    induction as with
-      | nil => simp [bind]
-      | cons h t ih =>
-        simp [bind, pure]
-        exact ih
+    inductosolve [bind]
 
 -- use `bind_append` from above
 @[autogradedProof 1]
@@ -364,10 +301,7 @@ theorem bind_assoc {α β γ : Type} (f : α → List β) (g : β → List γ) :
     ∀as : List α, bind (bind as f) g = bind as (fun a ↦ bind (f a) g) :=
   by
     intro as
-    induction as with
-    | nil => simp [bind]
-    | cons h t ih =>
-      simp [bind, bind_append, ih]
+    inductosolve? [bind, bind_append]
 
 /- (1 point). Prove the following list-specific law.
 
@@ -380,11 +314,7 @@ theorem bind_pure_comp_eq_map {α β : Type} {f : α → β} :
     ∀as : List α, bind as (fun a ↦ pure (f a)) = List.map f as :=
   by
     intro as
-    induction as with
-    | nil => simp [bind]
-    | cons h t t_ih =>
-      simp [bind, t_ih]
-      simp [pure]
+    inductosolve? [bind]
 
 /- (1 point). Register `List` as a lawful monad.
    This should be easy, since you have already proved the monad laws.

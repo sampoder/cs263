@@ -312,9 +312,7 @@ theorem add_zero (n : ℕ) :
 theorem add_succ (m n : ℕ) :
     add (Nat.succ m) n = Nat.succ (add m n) :=
   by
-    induction n
-    . simp[add]
-    . simp[add, a]
+    inductosolve[add]
 
 theorem add_succ_alt (m n : ℕ) :
     add (Nat.succ m) n = Nat.succ (add m n) :=
@@ -344,11 +342,7 @@ instance Commutative_add : Std.Commutative add :=
 theorem mul_add (l m n : ℕ) :
     mul l (add m n) = add (mul l m) (mul l n) :=
   by
-    induction n with
-    | zero       => rfl
-    | succ n' ih =>
-      simp [add, mul, ih]
-      ac_rfl
+    inductosolve[add, mul]
 
 theorem mul_add_alt (l m n : ℕ) :
     mul l (add m n) = add (mul l m) (mul l n) :=

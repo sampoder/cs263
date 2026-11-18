@@ -35,9 +35,7 @@ theorem reverseAccu_Eq_reverse_append {α : Type} :
     ∀as xs : List α, reverseAccu as xs = reverse xs ++ as :=
   by
     intros
-    induction xs generalizing as
-    . rfl
-    . simp [reverse, reverseAccu, tail_ih]
+    inductosolve [reverse, reverseAccu, tail_ih]
 
 
 /- 1.2. Derive the desired equation. -/

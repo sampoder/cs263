@@ -100,12 +100,7 @@ We can inspect the details of the proof! (Not possible with Props)
 
 
 example (n: ℕ) (ne: Even n): ¬Even (n+1) := by
-  induction ne
-  . intro h
-    cases h
-  . intro h
-    cases h
-    contradiction
+  inductosolve
 
 -- proving the same thing with evenRec is possible,
 -- but requires induction by n, and some extensions
@@ -266,9 +261,7 @@ this works as expected. -/
 theorem mod_two_Eq_zero_of_Even (n : ℕ) (h : Even n) :
     n % 2 = 0 :=
   by
-    induction h with
-    | zero            => rfl
-    | add_two k hk ih => simp; exact ih
+    inductosolve
 
 theorem Not_Even_two_mul_add_one (m n : ℕ)
       (hm : m = 2 * n + 1) :
@@ -293,22 +286,18 @@ theorem linarith_example (i : Int) (hi : i > 5) :
     2 * i + 3 > 11 :=
   by linarith
 
+theorem Star_Star_Iff_Star_fwd {α : Type} (R : α → α → Prop) (a b : α) :
+    Star (Star R) a b → Star R a b := by
+  intro h; inductosolve [Star.refl, Star.trans]
+
 theorem Star_Star_Iff_Star {α : Type} (R : α → α → Prop)
       (a b : α) :
     Star (Star R) a b ↔ Star R a b :=
   by
     apply Iff.intro
-    { intro h
-      induction h with
-      | base a b hab                  => exact hab
-      | refl a                        => apply Star.refl
-      | trans a b c hab hbc ihab ihbc =>
-        apply Star.trans a b
-        { exact ihab }
-        { exact ihbc } }
-    { intro h
-      apply Star.base
-      exact h }
+    · exact Star_Star_Iff_Star_fwd R a b
+    · intro h
+      exact Star.base _ _ h
 
 @[simp] theorem Star_Star_Eq_Star {α : Type}
       (R : α → α → Prop) :
@@ -526,12 +515,7 @@ theorem Palindrome_reverse {α : Type} (xs : List α)
       (hxs : Palindrome xs) :
     Palindrome (reverse xs) :=
   by
-    induction hxs with
-    | nil                  => exact Palindrome.nil
-    | single x             => exact Palindrome.single x
-    | sandwich x xs hxs ih =>
-      { simp [reverse, reverse_append]
-        exact Palindrome.sandwich _ _ ih }
+    inductosolve [reverse, reverse_append]
 
 
 /- ### Full Binary Trees -/
@@ -557,32 +541,12 @@ theorem IsFull_mirror {α : Type} (t : Tree α)
       (ht : IsFull t) :
     IsFull (mirror t) :=
   by
-    induction ht with
-    | nil                             => exact IsFull.nil
-    | node a l r hl hr hiff ih_l ih_r =>
-      { rw [mirror]
-        apply IsFull.node
-        { exact ih_r }
-        { exact ih_l }
-        { simp [mirror_Eq_nil_Iff, *] } }
+    inductosolve [mirror_Eq_nil_Iff, mirror]
 
 theorem IsFull_mirror_struct_induct {α : Type} (t : Tree α) :
     IsFull t → IsFull (mirror t) :=
   by
-    induction t with
-    | nil                  =>
-      { intro ht
-        exact ht }
-    | node a l r ih_l ih_r =>
-      { intro ht
-        cases ht with
-        | node _ _ _ hl hr hiff =>
-          { rw [mirror]
-            apply IsFull.node
-            { exact ih_r hr }
-            { apply ih_l hl }
-            { simp [mirror_Eq_nil_Iff, *] } } }
-
+    inductosolve [mirror_Eq_nil_Iff, mirror]
 
 /- ### First-Order Terms -/
 

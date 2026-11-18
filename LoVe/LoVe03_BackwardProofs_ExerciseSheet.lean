@@ -119,23 +119,13 @@ theorem forall_and {α : Type} (p q : α → Prop) :
 theorem mul_zero (n : ℕ) :
     mul 0 n = 0 :=
   by
-    induction n
-    . rfl
-    . rw [mul]
-      rw [a]
-      rfl
+    inductosolve[mul]
 
 #check add_succ
 theorem mul_succ (m n : ℕ) :
     mul (Nat.succ m) n = add (mul m n) n :=
   by
-    induction n
-    . simp [mul, add]
-    . simp [mul, add, a, add_succ, add_assoc]
-
-
-
-
+    inductosolve [mul, add, a, add_succ, add_assoc]
 
 
 /- 2.2. Prove commutativity and associativity of multiplication using the
@@ -144,17 +134,12 @@ theorem mul_succ (m n : ℕ) :
 theorem mul_comm (m n : ℕ) :
     mul m n = mul n m :=
   by
-    induction n
-    . simp [mul, mul_zero]
-    . simp [mul, mul_succ, add_comm, a]
+    inductosolve[mul, mul_zero, mul_succ, add_comm]
 
 theorem mul_assoc (l m n : ℕ) :
     mul (mul l m) n = mul l (mul m n) :=
   by
-    inductosolve
-    induction n
-    . simp [mul]
-    . simp [mul, a, mul_add]
+    inductosolve[mul_add, mul]
 
 /- 2.3. Prove the symmetric variant of `mul_add` using `rw`. To apply
 commutativity at a specific position, instantiate the rule by passing some

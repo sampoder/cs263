@@ -276,6 +276,59 @@ def EnvModels (Γ : Ctx) (ρ : Env) : Prop :=
   ∀ x τ, Γ x = some τ → ∃ v, ρ x = some v ∧ ValHasType v τ
 
 
+set_option maxHeartbeats 2000000
+theorem Eval_type_sound2 {Γ : Ctx} {ρ : Env} {e : Exp} {τ : Ty} :
+    HasType Γ e τ →
+    EnvModels Γ ρ →
+    ∃v, Eval ρ e v ∧ ValHasType v τ
+  := by
+  intro hty hmod
+  induction hty with
+  | nat =>
+    simp_all [hmod, Nat.lt_or_ge,
+      ValHasType_bool_inv, ValHasType_nat_inv,
+      Eval_nat, Eval_bool, Eval_var, Eval_add, Eval_le, Eval_ite]
+  | bool =>
+    simp_all [hmod, Nat.lt_or_ge,
+      ValHasType_bool_inv, ValHasType_nat_inv,
+      Eval_nat, Eval_bool, Eval_var, Eval_add, Eval_le, Eval_ite]
+  | var =>
+    simp_all only [Eval_var]
+    apply hmod
+    simp_all only
+  | ite =>
+    simp_all only [ValHasType_bool_inv, Bool.exists_bool, Eval_ite]
+    obtain ⟨w, h⟩       := a_ih
+    obtain ⟨w_1, h_1⟩   := a_ih_1
+    obtain ⟨w_2, h_2⟩   := a_ih_2
+    obtain ⟨left, right⟩       := h
+    obtain ⟨left_1, right_1⟩   := h_1
+    obtain ⟨left_2, right_2⟩   := h_2
+    cases right with
+    | inl h =>
+      subst h
+      simp_all only [true_and]
+      apply Exists.intro
+      · apply And.intro
+        on_goal 2 => { apply right_2 }
+        · simp_all only [or_true]
+    | inr h_1 =>
+      subst h_1
+      simp_all only [true_and]
+      apply Exists.intro
+      · apply And.intro
+        on_goal 2 => { apply right_1
+        }
+        · simp_all only [true_or]
+  | add =>
+    simp_all [hmod, Nat.lt_or_ge,
+      ValHasType_bool_inv, ValHasType_nat_inv,
+      Eval_nat, Eval_bool, Eval_var, Eval_add, Eval_le, Eval_ite]
+  | le =>
+    simp_all [hmod, Nat.lt_or_ge,
+      ValHasType_bool_inv, ValHasType_nat_inv,
+      Eval_nat, Eval_bool, Eval_var, Eval_add, Eval_le, Eval_ite]
+
 @[autogradedProof 4]
 theorem Eval_type_sound {Γ : Ctx} {ρ : Env} {e : Exp} {τ : Ty} :
     HasType Γ e τ →
